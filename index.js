@@ -67,7 +67,7 @@ function VerifyToken(req, res, next) {
   });
 }
 
-    app.get("/users", VerifyToken, async (req, res) => {
+    app.get("/users", async (req, res) => {
       const userDB = client.db("MicroTask").collection("users");
       const email = req.query?.email;
 
