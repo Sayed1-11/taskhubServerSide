@@ -14,10 +14,10 @@ app.use(
       "http://localhost:5173",
       "https://taskhub.surge.sh",
       "https://taskbucks-4a4ba.web.app",
-      "https://taskbucks-4a4ba.firebaseapp.com",
+      "https://taskbucks-4a4ba.web.app/*",
     ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], 
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
