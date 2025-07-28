@@ -258,6 +258,44 @@ function VerifyToken(req, res, next) {
       }
       res.send(tasks);
     });
+    app.patch("/checkout/:id", VerifyToken, async (req, res) => {
+  try {
+    const userDB = client.db("MicroTask").collection("checkout");
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Validate the status
+    if (!["pending", "Approved", "Declined"].includes(status)) {
+      return res.status(400).send({ message: "Invalid status value" });
+    }
+
+    // Update the checkout request
+    const result = await userDB.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { status: status } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).send({ message: "Request not found" });
+    }
+
+    // If approved, deduct coins from user's balance
+    if (status === "Approved") {
+      const checkoutRequest = await userDB.findOne({ _id: new ObjectId(id) });
+      const usersDB = client.db("MicroTask").collection("users");
+      
+      await usersDB.updateOne(
+        { email: checkoutRequest.email },
+        { $inc: { balance: -checkoutRequest.coinToWithdraw } }
+      );
+    }
+
+    res.send({ success: true, message: "Status updated successfully" });
+  } catch (error) {
+    console.error("Error updating checkout status:", error);
+    res.status(500).send({ message: "Internal server error" });
+  }
+});
     app.post("/checkout", VerifyToken, async (req, res) => {
       const userDB = client.db("MicroTask").collection("checkout");
       const user = req.body;
